@@ -1,8 +1,8 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.User;
+import com.example.demo.entity.Track;
 import org.springframework.data.repository.CrudRepository;
 
-public interface TrackRepository extends CrudRepository<User, Long> {
+public interface TrackRepository extends CrudRepository<Track, Long> {
 
 }

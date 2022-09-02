@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.UnauthorizedUser;
-import com.example.demo.entity.Track;
+import com.example.demo.dto.UserWithJwtToken;
 import com.example.demo.entity.User;
 import com.example.demo.security.JWTUtil;
 import com.example.demo.service.UserServiceImpl;
@@ -22,6 +22,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/users/")
+@CrossOrigin("*")
 public class UserController {
 
     private final UserServiceImpl userService;
@@ -47,14 +48,12 @@ public class UserController {
         if (id == null)
             return ResponseEntity.badRequest().build();
 
-
         var user = userService.getUserById(id);
 
         if (user == null)
             return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(user);
-
 
     }
 
@@ -72,22 +71,10 @@ public class UserController {
 
     }
 
-    @GetMapping(value = "ratedTracks/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<Track>> getUserRatedTracks(@PathVariable Long id) {
-
-        if (id == null)
-            return ResponseEntity.badRequest().build();
-
-        var tracks = userService.getUserRatedTracks(id);
-
-        return new ResponseEntity<>(tracks, HttpStatus.OK);
-
-    }
 
 
-
-    @PostMapping(value = "register", produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> registerUser(@RequestBody @Valid UnauthorizedUser unauthorizedUser, BindingResult bindingResult) {
+    @PostMapping(value = "register", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserWithJwtToken> registerUser(@RequestBody @Valid UnauthorizedUser unauthorizedUser, BindingResult bindingResult) {
 
         User user = convertToUser(unauthorizedUser);
 
@@ -100,12 +87,14 @@ public class UserController {
 
         String token = jwtUtil.generateToken(user.getLogin());
 
-        return ResponseEntity.ok(token);
+        var userWithJwtToken = convertToUserWithToken(user, token);
+
+        return new ResponseEntity<>(userWithJwtToken, HttpStatus.OK);
 
     }
 
-    @PostMapping(value = "login", produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> loginUser(@RequestBody @Valid UnauthorizedUser unauthorizedUser) {
+    @PostMapping(value = "login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserWithJwtToken> loginUser(@RequestBody @Valid UnauthorizedUser unauthorizedUser) {
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(unauthorizedUser.getLogin(), unauthorizedUser.getPassword());
 
@@ -116,12 +105,18 @@ public class UserController {
         }
 
         String token = jwtUtil.generateToken(unauthorizedUser.getLogin());
-        return ResponseEntity.ok(token);
+        boolean isAdmin = userService.isAdmin(unauthorizedUser.getLogin());
+        var userWithJwtToken = new UserWithJwtToken(unauthorizedUser.getLogin(),isAdmin, token);
+        return new ResponseEntity<>(userWithJwtToken, HttpStatus.OK);
 
     }
 
     public User convertToUser(UnauthorizedUser unauthorizedUser) {
         return this.modelMapper.map(unauthorizedUser, User.class);
+    }
+
+    public UserWithJwtToken convertToUserWithToken(User user, String token){
+        return new UserWithJwtToken(user.getLogin(), user.getIsAdmin(), token);
     }
 
 }

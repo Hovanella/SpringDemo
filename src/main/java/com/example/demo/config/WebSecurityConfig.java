@@ -36,10 +36,8 @@ public class WebSecurityConfig {
     }
 
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
 
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(getPasswordEncoder());
@@ -47,12 +45,12 @@ public class WebSecurityConfig {
 
         return
                 http.
-                        cors().
-                        and().
+                        cors().and().
                         csrf().disable().
                         authorizeRequests().
-                        antMatchers("/users/all").hasRole("ADMIN").
-                        antMatchers("/users/login", "/users/register", "/error" , "/users/ratedTracks/{id}").permitAll().
+                        antMatchers("/authors/AddAuthor","/genres/AddGenre").hasRole("ADMIN").
+                        antMatchers("/users/all").hasAnyRole("USER", "ADMIN").
+                        antMatchers("/users/login", "/users/register", "/error", "/tracks/TracksForUser/{login}", "/tracks/AddOrUpdateRating").permitAll().
                         anyRequest().hasAnyRole("USER", "ADMIN").
                         and().
                         addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).

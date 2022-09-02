@@ -20,6 +20,6 @@ public class UnauthorizedUser {
     @Size(min = 5, max = 40, message = "Password must be between 5 and 40 characters")
     private String password;
 
-    private Boolean isAdmin = false;
+    private Boolean isAdmin;
 
 }

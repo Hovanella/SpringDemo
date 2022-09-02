@@ -1,7 +1,6 @@
 package com.example.demo.service.Interfaces;
 
 import com.example.demo.dto.UnauthorizedUser;
-import com.example.demo.entity.Track;
 import com.example.demo.entity.User;
 
 import javax.transaction.Transactional;
@@ -19,5 +18,8 @@ public interface UserService {
 
     Collection<User> getAllUsers();
 
-    Collection<Track> getUserRatedTracks(Long id);
+
+    Long getUserIdByLogin(String login);
+
+    boolean isAdmin(String login);
 }

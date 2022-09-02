@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.UnauthorizedUser;
-import com.example.demo.entity.Track;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.Interfaces.UserService;
@@ -25,49 +24,46 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(UnauthorizedUser User) {
-        String login = User.getLogin();
+    public User login(UnauthorizedUser unauthorizedUser) {
+        String login = unauthorizedUser.getLogin();
         if (userRepository.findByLogin(login).isEmpty()) {
             throw new IllegalArgumentException("User with login " + login + " not found");
         }
-        User user = userRepository.findByLogin(login).get();
-        if (!passwordEncoder.matches(User.getPassword(), user.getPassword())) {
+        User userFromRepository = userRepository.findByLogin(login).get();
+        if (!passwordEncoder.matches(unauthorizedUser.getPassword(), userFromRepository.getPassword())) {
             throw new IllegalArgumentException("Wrong password");
         }
-        return user;
+        System.out.println(unauthorizedUser.getPassword() + " " + userFromRepository.getPassword());
+        return userFromRepository;
     }
 
     @Override
     @Transactional
-    public void register(User User)  {
+    public void register(User User) {
         User.setPassword(passwordEncoder.encode(User.getPassword()));
         userRepository.save(User);
     }
-
 
 
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
+
     @Override
-    public Collection<User> getAllUsers(){
+    public Collection<User> getAllUsers() {
         return (Collection<User>) userRepository.findAll();
     }
 
     @Override
-    public Collection<Track> getUserRatedTracks(Long id) {
-
-        var user = userRepository.findById(id).orElse(null);
-
-        if (user == null) {
-            throw new IllegalArgumentException("User with id " + id + " not found");
-        }
-
-        var tracks = (Collection<Track>)user.getTracks();
-
-        return tracks;
-
+    public Long getUserIdByLogin(String login) {
+        return userRepository.findByLogin(login).get().getId();
     }
+
+    @Override
+    public boolean isAdmin(String login) {
+        return userRepository.findByLogin(login).get().getIsAdmin();
+    }
+
 
 }
