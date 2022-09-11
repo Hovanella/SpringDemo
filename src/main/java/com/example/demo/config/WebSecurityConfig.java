@@ -48,7 +48,8 @@ public class WebSecurityConfig {
                         cors().and().
                         csrf().disable().
                         authorizeRequests().
-                        antMatchers("/authors/AddAuthor","/genres/AddGenre").hasRole("ADMIN").
+                        antMatchers("/authors/AddAuthor", "/genres/AddGenre", "/authors/GetAuthor/{name}",
+                                "genres/GetGenre/{name}","authors/GetAllAuthors","genres/GetAllGenres","genres/GetGenre/{name}","/tracks/CopyTrackInAudio").hasRole("ADMIN").
                         antMatchers("/users/all").hasAnyRole("USER", "ADMIN").
                         antMatchers("/users/login", "/users/register", "/error", "/tracks/TracksForUser/{login}", "/tracks/AddOrUpdateRating").permitAll().
                         anyRequest().hasAnyRole("USER", "ADMIN").

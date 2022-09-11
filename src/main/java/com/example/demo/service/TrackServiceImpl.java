@@ -3,7 +3,10 @@ package com.example.demo.service;
 import com.example.demo.dto.RatingDto;
 import com.example.demo.dto.RatingWithNewMark;
 import com.example.demo.dto.TrackDto;
+import com.example.demo.entity.Author;
+import com.example.demo.entity.Genre;
 import com.example.demo.entity.Rating;
+import com.example.demo.entity.Track;
 import com.example.demo.repository.RatingRepository;
 import com.example.demo.repository.TrackRepository;
 import com.example.demo.repository.UserRepository;
@@ -78,5 +81,16 @@ public class TrackServiceImpl {
         var trackDto = modelMapper.map(track, TrackDto.class);
         trackDto.setRating(rating);
         return trackDto;
+    }
+
+    public TrackDto createTrack(String name, String path, Author author, Genre genre) {
+        var track = new Track();
+        track.setName(name);
+        track.setPath(path);
+        track.setAuthor(author);
+        track.setGenre(genre);
+        trackRepository.save(track);
+
+        return modelMapper.map(track, TrackDto.class);
     }
 }

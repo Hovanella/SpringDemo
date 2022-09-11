@@ -9,11 +9,16 @@ import com.example.demo.service.GenreServiceImpl;
 import com.example.demo.service.TrackServiceImpl;
 import com.example.demo.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collection;
 
 @RestController
@@ -25,6 +30,9 @@ public class TrackController {
     private final UserServiceImpl userService;
     private final GenreServiceImpl genreService;
     private final AuthorServiceImpl authorService;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     @Autowired
     public TrackController(TrackServiceImpl trackService, UserServiceImpl userService, GenreServiceImpl genreService, AuthorServiceImpl authorService) {
@@ -39,8 +47,40 @@ public class TrackController {
 
         var author = authorService.getAuthorById(trackFromRedactor.getAuthorId());
         var genre = genreService.getGenreById(trackFromRedactor.getGenreId());
+        var name = trackFromRedactor.getName();
+        var path = trackFromRedactor.getPath();
 
+        var trackDto = trackService.createTrack(name, path,author,genre);
 
+        return new ResponseEntity<>(trackDto, HttpStatus.OK);
+
+    }
+
+    @PostMapping(value = "CopyTrackInAudio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity uploadFile(@RequestBody MultipartFile file) {
+
+        //save file in directory
+        try {
+            var inputStream = file.getInputStream();
+            var path = file.getOriginalFilename();
+            var destination = new File("E:\\Education\\5semester\\Spring\\MyLabs\\Demo\\demo\\src\\main\\resources\\static\\react-js-example\\public\\Audio\\" + path).toPath();
+
+            Files.copy(inputStream, destination);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void copyFileToFolder(String absolutePath, String uploadPath) {
+        var file = new File(absolutePath);
+        var newFile = new File(uploadPath + "/" + file.getName());
+        try {
+            Files.copy(file.toPath(), newFile.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
