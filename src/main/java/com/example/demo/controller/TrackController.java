@@ -8,6 +8,7 @@ import com.example.demo.service.AuthorServiceImpl;
 import com.example.demo.service.GenreServiceImpl;
 import com.example.demo.service.TrackServiceImpl;
 import com.example.demo.service.UserServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/tracks/")
 @CrossOrigin("*")
+@Slf4j
 public class TrackController {
 
     private final TrackServiceImpl trackService;
@@ -71,18 +73,6 @@ public class TrackController {
         }
 
         return ResponseEntity.ok().build();
-    }
-
-    private void copyFileToFolder(String absolutePath, String uploadPath) {
-        var file = new File(absolutePath);
-        var newFile = new File(uploadPath + "/" + file.getName());
-        try {
-            Files.copy(file.toPath(), newFile.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
     }
 
 

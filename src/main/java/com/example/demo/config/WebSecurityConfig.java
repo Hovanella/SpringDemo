@@ -35,6 +35,12 @@ public class WebSecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    @Bean
+    public PasswordEncoder getPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -50,8 +56,9 @@ public class WebSecurityConfig {
                         authorizeRequests().
                         antMatchers("/authors/AddAuthor", "/genres/AddGenre", "/authors/GetAuthor/{name}",
                                 "genres/GetGenre/{name}","authors/GetAllAuthors","genres/GetAllGenres","genres/GetGenre/{name}","/tracks/CopyTrackInAudio").hasRole("ADMIN").
-                        antMatchers("/users/all").hasAnyRole("USER", "ADMIN").
-                        antMatchers("/users/login", "/users/register", "/error", "/tracks/TracksForUser/{login}", "/tracks/AddOrUpdateRating").permitAll().
+                        antMatchers("/users/all", "/tracks/TracksForUser/{login}", "/tracks/AddOrUpdateRating").hasAnyRole("USER", "ADMIN").
+                        antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html","/your-app-root/swagger-ui/**","/spring-security-rest/**",  "/swagger-resources/**", "/swagger-ui.html", "/v2/api-docs", "/webjars/**").permitAll().
+                        antMatchers("/users/login", "/users/register").permitAll().
                         anyRequest().hasAnyRole("USER", "ADMIN").
                         and().
                         addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).
@@ -64,10 +71,6 @@ public class WebSecurityConfig {
     }
 
 
-    @Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
 }
 

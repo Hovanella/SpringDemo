@@ -29,8 +29,7 @@ create table track
 
 create table rating(
   id       int primary key AUTO_INCREMENT,
-  name     varchar(40) NOT NULL,
-  path    varchar(256) NOT NULL,
+  rating_mark   int check ( 0-9 )  NOT NULL,
   user_id  int         NOT NULL,
 
     foreign key (user_id) references user (id)

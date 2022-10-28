@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +20,5 @@ public class UnauthorizedUser {
     @Size(min = 5, max = 40, message = "Password must be between 5 and 40 characters")
     private String password;
 
-    private Boolean isAdmin;
 
 }

@@ -1,11 +1,13 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.UnauthorizedUser;
-import com.example.demo.dto.UserWithJwtToken;
+import com.example.demo.dto.User.UnauthorizedUser;
+import com.example.demo.dto.User.UserWithJwtToken;
 import com.example.demo.entity.User;
+import com.example.demo.exception.NonExistedUserException;
 import com.example.demo.security.JWTUtil;
 import com.example.demo.service.UserServiceImpl;
 import com.example.demo.validator.UserValidator;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users/")
 @CrossOrigin("*")
+@ControllerAdvice
 public class UserController {
 
     private final UserServiceImpl userService;
@@ -58,13 +61,15 @@ public class UserController {
     }
 
 
+    @ApiResponse(responseCode = "200", description = "Users found")
+    @ApiResponse(responseCode = "204", description = "No Users found")
     @GetMapping(value = "all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<User>> getAllUsers() {
 
         var users = userService.getAllUsers();
 
         if (users == null || users.size() == 0)
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
 
         return new ResponseEntity<>(users, HttpStatus.OK);
 
@@ -72,11 +77,12 @@ public class UserController {
     }
 
 
-
+    @ApiResponse(responseCode = "200", description = "User created")
+    @ApiResponse(responseCode = "400", description = "Invalid user data")
     @PostMapping(value = "register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserWithJwtToken> registerUser(@RequestBody @Valid UnauthorizedUser unauthorizedUser, BindingResult bindingResult) {
 
-        User user = convertToUser(unauthorizedUser);
+        User user = this.modelMapper.map(unauthorizedUser, User.class);
 
         userValidator.validate(user, bindingResult);
 
@@ -87,12 +93,14 @@ public class UserController {
 
         String token = jwtUtil.generateToken(user.getLogin());
 
-        var userWithJwtToken = convertToUserWithToken(user, token);
+        var userWithJwtToken = new UserWithJwtToken(user.getLogin(), user.getIsAdmin(), token);
 
         return new ResponseEntity<>(userWithJwtToken, HttpStatus.OK);
 
     }
 
+    @ApiResponse(responseCode = "200", description = "User logged in")
+    @ApiResponse(responseCode = "400", description = "Invalid user data")
     @PostMapping(value = "login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserWithJwtToken> loginUser(@RequestBody @Valid UnauthorizedUser unauthorizedUser) {
 
@@ -101,7 +109,7 @@ public class UserController {
         try {
             authenticationManager.authenticate(authenticationToken);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+           throw new NonExistedUserException("User with login " + unauthorizedUser.getLogin() + " doesn't exist");
         }
 
         String token = jwtUtil.generateToken(unauthorizedUser.getLogin());
@@ -111,12 +119,6 @@ public class UserController {
 
     }
 
-    public User convertToUser(UnauthorizedUser unauthorizedUser) {
-        return this.modelMapper.map(unauthorizedUser, User.class);
-    }
 
-    public UserWithJwtToken convertToUserWithToken(User user, String token){
-        return new UserWithJwtToken(user.getLogin(), user.getIsAdmin(), token);
-    }
 
 }

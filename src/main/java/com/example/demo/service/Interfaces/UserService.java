@@ -1,6 +1,6 @@
 package com.example.demo.service.Interfaces;
 
-import com.example.demo.dto.UnauthorizedUser;
+import com.example.demo.dto.User.UnauthorizedUser;
 import com.example.demo.entity.User;
 
 import javax.transaction.Transactional;

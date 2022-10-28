@@ -27,7 +27,7 @@ public class User {
     private String password;
 
     @Column(name = "is_admin",nullable = false)
-    private Boolean isAdmin;
+    private Boolean isAdmin = false;
 
     @ManyToMany
     @JoinTable(name = "rating",
