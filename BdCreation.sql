@@ -23,14 +23,20 @@ create table track
     id        int primary key AUTO_INCREMENT,
     name      varchar(40) NOT NULL,
     author_id int         NOT NULL,
+    genre_id  int         NOT NULL,
+	path varchar(40) NOT NULL,
 
     foreign key (author_id) references author (id)
+	foreign key (genre_id) references genre (id)
 );
 
 create table rating(
   id       int primary key AUTO_INCREMENT,
-  rating_mark   int check ( 0-9 )  NOT NULL,
+  mark   int check ( 0-9 )  NOT NULL,
   user_id  int         NOT NULL,
+  track_id int NOT NULL,
 
     foreign key (user_id) references user (id)
+    foreign key (track_id) references track (id)
 );
+
