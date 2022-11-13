@@ -29,6 +29,9 @@ public class User {
     @Column(name = "is_admin",nullable = false)
     private Boolean isAdmin = false;
 
+    @Column(name="email",nullable = false)
+    private String email;
+
     @ManyToMany
     @JoinTable(name = "rating",
             joinColumns = @JoinColumn(name = "user_id"),

@@ -1,13 +1,9 @@
 package com.example.demo.controller;
 
-
 import com.example.demo.dto.RatingForUpdate;
 import com.example.demo.dto.TrackDto;
 import com.example.demo.dto.TrackFromRedactor;
-import com.example.demo.service.AuthorServiceImpl;
-import com.example.demo.service.GenreServiceImpl;
-import com.example.demo.service.TrackServiceImpl;
-import com.example.demo.service.UserServiceImpl;
+import com.example.demo.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,16 +27,18 @@ public class TrackController {
     private final UserServiceImpl userService;
     private final GenreServiceImpl genreService;
     private final AuthorServiceImpl authorService;
+    private final EmailServiceImpl emailService;
 
     @Value("${upload.path}")
     private String uploadPath;
 
     @Autowired
-    public TrackController(TrackServiceImpl trackService, UserServiceImpl userService, GenreServiceImpl genreService, AuthorServiceImpl authorService) {
+    public TrackController(TrackServiceImpl trackService, UserServiceImpl userService, GenreServiceImpl genreService, AuthorServiceImpl authorService, EmailServiceImpl emailService) {
         this.trackService = trackService;
         this.userService = userService;
         this.genreService = genreService;
         this.authorService = authorService;
+        this.emailService = emailService;
     }
 
     @PostMapping(value = "AddTrack", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,6 +51,10 @@ public class TrackController {
 
         var trackDto = trackService.createTrack(name, path,author,genre);
 
+        new Thread(() -> {
+            emailService.sendEmailToAllUsers("New track added", "New track " + name + " added to the library");
+        }).start();
+
         return new ResponseEntity<>(trackDto, HttpStatus.OK);
 
     }
@@ -61,7 +62,6 @@ public class TrackController {
     @PostMapping(value = "CopyTrackInAudio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity uploadFile(@RequestBody MultipartFile file) {
 
-        //save file in directory
         try {
             var inputStream = file.getInputStream();
             var path = file.getOriginalFilename();

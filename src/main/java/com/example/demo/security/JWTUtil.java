@@ -15,7 +15,7 @@ import java.util.Date;
 public class JWTUtil {
 
     @Value("${jwt_secret}")
-    private String secret;
+    private String secret = "a";
 
     public String generateToken(String login) {
         Date expirationDate = Date.from(ZonedDateTime.now().plusMinutes(60).toInstant());

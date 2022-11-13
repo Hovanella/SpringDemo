@@ -32,7 +32,6 @@ public class UserValidator implements Validator {
           } catch (UsernameNotFoundException ignored) {
               return;
           }
-
             errors.rejectValue("login", "", "user.login.exists");
     }
 }

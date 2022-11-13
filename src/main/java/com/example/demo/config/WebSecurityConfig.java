@@ -55,8 +55,8 @@ public class WebSecurityConfig {
                         csrf().disable().
                         authorizeRequests().
                         antMatchers("/authors/AddAuthor", "/genres/AddGenre", "/authors/GetAuthor/{name}",
-                                "genres/GetGenre/{name}","authors/GetAllAuthors","genres/GetAllGenres","genres/GetGenre/{name}","/tracks/CopyTrackInAudio").hasRole("ADMIN").
-                        antMatchers("/users/all", "/tracks/TracksForUser/{login}", "/tracks/AddOrUpdateRating").hasAnyRole("USER", "ADMIN").
+                                "genres/GetGenre/{name}","authors/GetAllAuthors","genres/GetAllGenres","genres/GetGenre/{name}","/tracks/CopyTrackInAudio","/users/all").hasRole("ADMIN").
+                        antMatchers("/tracks/TracksForUser/{login}", "/tracks/AddOrUpdateRating").hasAnyRole("USER", "ADMIN").
                         antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html","/your-app-root/swagger-ui/**","/spring-security-rest/**",  "/swagger-resources/**", "/swagger-ui.html", "/v2/api-docs", "/webjars/**").permitAll().
                         antMatchers("/users/login", "/users/register").permitAll().
                         anyRequest().hasAnyRole("USER", "ADMIN").
