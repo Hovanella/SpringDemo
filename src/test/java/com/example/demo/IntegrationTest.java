@@ -18,7 +18,8 @@ public class IntegrationTest {
     WebApplicationContext webApplicationContext;
 
     private MockMvc mockMvc;
-    private JWTUtil jwtUtil = new JWTUtil();
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @BeforeEach
     public void setUp() {
@@ -34,9 +35,8 @@ public class IntegrationTest {
     }
 
     @Test
-    public void WhenTryToGetAllUsers_AndHasAdminToken_Then200Status()  throws Exception {
-        String token =jwtUtil.generateToken("admin");
-
+    public void WhenTryToGetAllUsers_AndHasAToken_Then200Status()  throws Exception {
+        var token = jwtUtil.generateToken("");
         mockMvc.perform(MockMvcRequestBuilders.get("/users/all").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
